@@ -24,4 +24,11 @@ class Category extends Model
         $last_id = $category->id;
         return $last_id;
     }
+
+    public static function readCategories()
+    {
+
+        $allCategories = Category::select("*")->get();
+        return $allCategories;
+    }
 }

@@ -27,7 +27,11 @@ class CategoriesController extends Controller implements CategoryControllerInter
         return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
     }
 
-    public function showAll() {}
+    public function showAll()
+    {
+        $allCategories = Category::readCategories();
+        return $allCategories;
+    }
 
     public function showOne(int $id) {}
 
