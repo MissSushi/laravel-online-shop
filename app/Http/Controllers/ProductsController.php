@@ -45,19 +45,22 @@ class ProductsController extends Controller implements ProductControllerInterfac
             'price' => 'required',
             'name' =>   'required|min:3',
             'status' => 'required',
-            'description' => 'required|min:3'
+            'description' => 'required|min:3',
+            'categoryId' => 'required'
         ]);
 
         $price = $validatedData["price"];
         $name = $validatedData["name"];
         $status = $validatedData["status"];
         $description = $validatedData["description"];
+        $categoryId = $validatedData["categoryId"];
 
         $lastId = Product::createProduct(
             $name,
             $price,
             $status,
-            $description
+            $description,
+            $categoryId
         );
 
 
