@@ -30,7 +30,7 @@ class CategoriesController extends Controller implements CategoryControllerInter
     public function showAll()
     {
         $allCategories = Category::readCategories();
-        return $allCategories;
+        return new JsonResponse($allCategories, 200);
     }
 
     public function showOne(int $id) {}

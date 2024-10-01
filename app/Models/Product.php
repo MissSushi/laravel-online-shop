@@ -15,17 +15,18 @@ class Product extends Model
         return $products->toArray();
     }
 
-    public static function createProduct(string $name, int $price, int $status, string $description): int
+    public static function createProduct(string $name, int $price, int $status, string $description, int $categoryId): int
     {
         $product = new Product();
         $product->name = $name;
         $product->price = $price;
         $product->status = $status;
         $product->description = $description;
+        $product->category_id = $categoryId;
 
         $product->save();
 
-        $last_id = Product::lastInsertId();
+        $last_id = $product->id;
         return $last_id;
     }
 }
