@@ -10,18 +10,27 @@ use Illuminate\Validation\ValidationException;
 
 class ProductsController extends Controller implements ProductControllerInterface
 {
-    public function showAll()
+    public function showAll(Request $request)
     {
-        header('Content-Type: application/json');
-        $products = Product::readProducts();
-        // $countProducts = $this->db->getCount($sort, $filter, $search);
-        // $countPages = ceil($countProducts / $limit);
-        // echo json_encode([
-        //     'count' => $countProducts,
-        //     'countPages' => $countPages,
-        //     'products' => $products
-        // ]);
 
+        $limit = intval($request->query('limit'));
+        $page = intval($request->query('page'));
+        $sortBy = strval($request->query('sortBy'));
+        $filterBy = strval($request->query('filterBy'));
+        $search = strval($request->query('search', ""));
+
+        $offset = ($page - 1) * $limit;
+
+        $products = Product::readProducts($offset, $limit, $sortBy, $filterBy, $search);
+        $countProducts = Product::getCount($sortBy, $filterBy, $search);
+        // $countProducts = $this->db->getCount($sort, $filter, $search);
+        $countPages = ceil($countProducts / $limit);
+        return new JsonResponse([
+            'products' => $products,
+            'count' => $countProducts,
+            'countPages' => $countPages,
+            'products' => $products
+        ]);
     }
 
     public function showOne(int $id)
