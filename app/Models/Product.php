@@ -94,6 +94,12 @@ class Product extends Model
         return $result;
     }
 
+    public static function readProduct(int $id)
+    {
+        $product = Product::findOrFail($id);
+        return $product;
+    }
+
     public static function createProduct(string $name, int $price, int $status, string $description, int $categoryId): int
     {
         $product = new Product();
@@ -107,5 +113,10 @@ class Product extends Model
 
         $last_id = $product->id;
         return $last_id;
+    }
+
+    public static function updateProduct(int $id, string $name, int $price, string $description, int $status)
+    {
+        Product::where('id', $id)->update(['name' => $name, 'price' => $price, 'description' => $description, 'status' => $status]);
     }
 }

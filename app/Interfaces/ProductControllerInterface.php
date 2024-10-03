@@ -12,7 +12,7 @@ interface ProductControllerInterface
 
     public function store(Request $request);
 
-    public function update(int $id, array $data);
+    public function update(Request $request, int $id);
 
     public function destroy(int $id);
 }
