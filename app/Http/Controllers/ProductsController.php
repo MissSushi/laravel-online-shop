@@ -6,33 +6,43 @@ use App\Models\Product;
 use App\Interfaces\ProductControllerInterface;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
 class ProductsController extends Controller implements ProductControllerInterface
 {
-    public function showAll()
+    public function showAll(Request $request)
     {
-        header('Content-Type: application/json');
-        $products = Product::readProducts();
-        // $countProducts = $this->db->getCount($sort, $filter, $search);
-        // $countPages = ceil($countProducts / $limit);
-        // echo json_encode([
-        //     'count' => $countProducts,
-        //     'countPages' => $countPages,
-        //     'products' => $products
-        // ]);
 
+        $limit = intval($request->query('limit'));
+        $page = intval($request->query('page'));
+        $sortBy = strval($request->query('sortBy'));
+        $filterBy = strval($request->query('filterBy'));
+        $search = strval($request->query('search', ""));
+
+        $offset = ($page - 1) * $limit;
+
+        $products = Product::readProducts($offset, $limit, $sortBy, $filterBy, $search);
+        $countProducts = Product::getCount($sortBy, $filterBy, $search);
+        // $countProducts = $this->db->getCount($sort, $filter, $search);
+        $countPages = ceil($countProducts / $limit);
+        return new JsonResponse([
+            'products' => $products,
+            'count' => $countProducts,
+            'countPages' => $countPages,
+            'products' => $products
+        ]);
     }
 
     public function showOne(int $id)
     {
-        // header('Content-Type: application/json');
-        // $result = $this->db->getProduct($id);
-        // if ($result === null) {
-        //     http_response_code(404);
-        // }
-        // echo json_encode($result);
 
+        $product = Product::readProduct($id);
+
+        if ($product === null) {
+            return new Response("not ok", 404);
+        }
+        return new JsonResponse($product, 200);
     }
 
     public function store(Request $request)
@@ -70,16 +80,24 @@ class ProductsController extends Controller implements ProductControllerInterfac
         // }
     }
 
-    public function update(int $id, array $data)
+    public function update(Request $request, int $id)
     {
-        // header('Content-Type: application/json');
 
-        // $description = $item["description"];
-        // $price = $item["price"];
-        // $name = $item["name"];
-        // $status = $item["status"];
+        $validatedData = $request->validate([
+            'name' => 'required',
+            'price' => 'required',
+            'description' => 'required',
+            'status' => 'required'
+        ]);
 
-        // $this->db->editProduct($id, $name, $description, $price, $status);
+        $description = $validatedData["description"];
+        $price = $validatedData["price"];
+        $name = $validatedData["name"];
+        $status = $validatedData["status"];
+
+        Product::updateProduct($id, $name, $price, $description, $status);
+
+        return new JsonResponse("ok", 200);
     }
 
     public function destroy(int $id)
