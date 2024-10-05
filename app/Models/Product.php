@@ -59,34 +59,37 @@ class Product extends Model
         }
 
         if ($filter == "active") {
-            $result = Product::select("id", "name", "price", "status")
-                ->where("status", 1)
+            $result = Product::select("products.id", "products.name", "categories.name as category_name", "products.price", "products.status")
+                ->join("categories", "products.category_id", "=", "categories.id")
+                ->where("products.status", 1)
                 ->where(function (Builder $query) use ($search) {
-                    $query->where("id", $search)
-                        ->orWhere('name', 'like', '%' . $search . '%');
+                    $query->where("products.id", $search)
+                        ->orWhere('products.name', 'like', '%' . $search . '%');
                 })
-                ->orderBy($validSortColumns[$sort])
+                ->orderBy("products." . $validSortColumns[$sort])
                 ->limit($limit)
                 ->offset($offset)
                 ->get();
         } elseif ($filter == "inactive") {
-            $result = Product::select("id", "name", "price", "status")
-                ->where("status", 0)
+            $result = Product::select("products.id", "products.name", "categories.name as category_name", "products.price", "products.status")
+                ->join("categories", "products.category_id", "=", "categories.id")
+                ->where("products.status", 0)
                 ->where(function (Builder $query) use ($search) {
-                    $query->where("id", $search)
-                        ->orWhere('name', 'like', '%' . $search . '%');
+                    $query->where("products.id", $search)
+                        ->orWhere('products.name', 'like', '%' . $search . '%');
                 })
-                ->orderBy($validSortColumns[$sort])
+                ->orderBy("products." . $validSortColumns[$sort])
                 ->limit($limit)
                 ->offset($offset)
                 ->get();
         } else {
-            $result = Product::select("id", "name", "price", "status")
+            $result = Product::select("products.id", "products.name", "categories.name as category_name", "products.price", "products.status")
+                ->join("categories", "products.category_id", "=", "categories.id")
                 ->where(function (Builder $query) use ($search) {
-                    $query->where("id", $search)
-                        ->orWhere('name', 'like', '%' . $search . '%');
+                    $query->where("products.id", $search)
+                        ->orWhere('products.name', 'like', '%' . $search . '%');
                 })
-                ->orderBy($validSortColumns[$sort])
+                ->orderBy("products." . $validSortColumns[$sort])
                 ->limit($limit)
                 ->offset($offset)
                 ->get();
