@@ -115,8 +115,14 @@ class Product extends Model
         return $last_id;
     }
 
-    public static function updateProduct(int $id, string $name, int $price, string $description, int $status)
+    public static function updateProduct(int $id, string $name, int $price, string $description, int $status, int $categoryId)
     {
-        Product::where('id', $id)->update(['name' => $name, 'price' => $price, 'description' => $description, 'status' => $status]);
+        Product::where('id', $id)->update(['name' => $name, 'price' => $price, 'description' => $description, 'status' => $status, 'category_id' => $categoryId]);
+    }
+
+    public static function deleteProduct(int $id)
+    {
+        $result = Product::findOrFail($id)->delete();
+        return $result;
     }
 }

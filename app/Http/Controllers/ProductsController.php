@@ -4,16 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Interfaces\ProductControllerInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Validation\ValidationException;
 
 class ProductsController extends Controller implements ProductControllerInterface
 {
     public function showAll(Request $request)
     {
-
         $limit = intval($request->query('limit'));
         $page = intval($request->query('page'));
         $sortBy = strval($request->query('sortBy'));
@@ -24,7 +22,6 @@ class ProductsController extends Controller implements ProductControllerInterfac
 
         $products = Product::readProducts($offset, $limit, $sortBy, $filterBy, $search);
         $countProducts = Product::getCount($sortBy, $filterBy, $search);
-        // $countProducts = $this->db->getCount($sort, $filter, $search);
         $countPages = ceil($countProducts / $limit);
         return new JsonResponse([
             'products' => $products,
@@ -36,21 +33,16 @@ class ProductsController extends Controller implements ProductControllerInterfac
 
     public function showOne(int $id)
     {
-
         $product = Product::readProduct($id);
 
         if ($product === null) {
-            return new Response("not ok", 404);
+            return new JsonResponse("not found", 404);
         }
         return new JsonResponse($product, 200);
     }
 
     public function store(Request $request)
     {
-        // try {
-        // var_dump($request->json());
-
-
         $validatedData = $request->validate([
             'price' => 'required',
             'name' =>   'required|min:3',
@@ -65,44 +57,52 @@ class ProductsController extends Controller implements ProductControllerInterfac
         $description = $validatedData["description"];
         $categoryId = $validatedData["categoryId"];
 
-        $lastId = Product::createProduct(
-            $name,
-            $price,
-            $status,
-            $description,
-            $categoryId
-        );
-
-
+        try {
+            $lastId = Product::createProduct(
+                $name,
+                $price,
+                $status,
+                $description,
+                $categoryId
+            );
+            return new JsonResponse($lastId, 201);
+        } catch (\Exception $error) {
+            return new JsonResponse(['message' => 'Failed to create product', 'error' => $error->getMessage()], 500);
+        }
         return new JsonResponse($lastId, 201);
-        // } catch (ValidationException $e) {
-        //     return new JsonResponse(["error" => $e->getMessage()], 400);
-        // }
     }
 
     public function update(Request $request, int $id)
     {
-
         $validatedData = $request->validate([
             'name' => 'required',
             'price' => 'required',
             'description' => 'required',
-            'status' => 'required'
+            'status' => 'required',
+            'categoryId' => 'required'
         ]);
 
         $description = $validatedData["description"];
         $price = $validatedData["price"];
         $name = $validatedData["name"];
         $status = $validatedData["status"];
+        $categoryId = $validatedData["categoryId"];
 
-        Product::updateProduct($id, $name, $price, $description, $status);
-
-        return new JsonResponse("ok", 200);
+        try {
+            Product::updateProduct($id, $name, $price, $description, $status, $categoryId);
+            return new JsonResponse(['message' => 'Product updated successfully', 'success' => true], 200);
+        } catch (\Exception $error) {
+            return new JsonResponse(['message' => 'Failed to update product', 'error' => $error->getMessage()], 500);
+        }
     }
 
     public function destroy(int $id)
     {
-        // header('Content-Type: application/json');
-        // $this->db->deleteProduct($id);
+        try {
+            Product::deleteProduct($id);
+            return new JsonResponse(['message' => 'Product deleted successfully', 'success' => true], 200);
+        } catch (ModelNotFoundException $error) {
+            return new JsonResponse(['message' => 'Failed to delete product', 'error' => $error->getMessage()], 500);
+        }
     }
 }
