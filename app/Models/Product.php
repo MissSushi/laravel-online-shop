@@ -99,8 +99,7 @@ class Product extends Model
 
     public static function readProduct(int $id)
     {
-        $product = Product::findOrFail($id);
-        return $product;
+        return Product::findOrFail($id);
     }
 
     public static function createProduct(string $name, int $price, int $status, string $description, int $categoryId): int
