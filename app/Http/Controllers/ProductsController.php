@@ -12,10 +12,10 @@ class ProductsController extends Controller implements ProductControllerInterfac
 {
     public function showAll(Request $request)
     {
-        $limit = intval($request->query('limit'));
-        $page = intval($request->query('page'));
-        $sortBy = strval($request->query('sortBy'));
-        $filterBy = strval($request->query('filterBy'));
+        $limit = intval($request->query('limit', 10));
+        $page = intval($request->query('page', 1));
+        $sortBy = strval($request->query('sortBy', 'all'));
+        $filterBy = strval($request->query('filterBy', 'all'));
         $search = strval($request->query('search', ""));
 
         $offset = ($page - 1) * $limit;
@@ -34,10 +34,6 @@ class ProductsController extends Controller implements ProductControllerInterfac
     public function showOne(int $id)
     {
         $product = Product::readProduct($id);
-
-        if ($product === null) {
-            return new JsonResponse("not found", 404);
-        }
         return new JsonResponse($product, 200);
     }
 
@@ -69,7 +65,6 @@ class ProductsController extends Controller implements ProductControllerInterfac
         } catch (\Exception $error) {
             return new JsonResponse(['message' => 'Failed to create product', 'error' => $error->getMessage()], 500);
         }
-        return new JsonResponse($lastId, 201);
     }
 
     public function update(Request $request, int $id)
