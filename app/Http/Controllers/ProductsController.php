@@ -10,6 +10,18 @@ use Illuminate\Http\Request;
 
 class ProductsController extends Controller implements ProductControllerInterface
 {
+    public function validation(Request $request): array
+    {
+        $validatedData = $request->validate($request, [
+            'price' => 'required',
+            'name' =>   'required|min:3',
+            'status' => 'required',
+            'description' => 'required|min:3',
+            'categoryId' => 'required'
+        ]);
+
+        return $validatedData;
+    }
     public function showAll(Request $request)
     {
         $limit = intval($request->query('limit', 10));
@@ -39,13 +51,7 @@ class ProductsController extends Controller implements ProductControllerInterfac
 
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'price' => 'required',
-            'name' =>   'required|min:3',
-            'status' => 'required',
-            'description' => 'required|min:3',
-            'categoryId' => 'required'
-        ]);
+        $validatedData = $this->validation($request);
 
         $price = $validatedData["price"];
         $name = $validatedData["name"];
@@ -67,15 +73,11 @@ class ProductsController extends Controller implements ProductControllerInterfac
         }
     }
 
+
+
     public function update(Request $request, int $id)
     {
-        $validatedData = $request->validate([
-            'name' => 'required',
-            'price' => 'required',
-            'description' => 'required',
-            'status' => 'required',
-            'categoryId' => 'required'
-        ]);
+        $validatedData = $this->validation($request);
 
         $description = $validatedData["description"];
         $price = $validatedData["price"];
